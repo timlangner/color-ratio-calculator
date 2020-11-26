@@ -1,0 +1,21 @@
+.bubble-flexbox {
+  display: flex;
+  align-items: center;
+
+  .bubble-wrapper {
+    width: 500px;
+    height: 150px;
+    background-color: #476D91;
+    padding: 10px 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+
+    .name, .text {
+      color: #FFFFFF;
+    }
+
+    .name {
+      margin-bottom: 5px;
+    }
+  }
+}
