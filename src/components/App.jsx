@@ -1,7 +1,6 @@
 import React from 'react';
 
 function App() {
-    const store = useSelector(globalStore);
 
     return (
         <div>
