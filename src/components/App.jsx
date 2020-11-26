@@ -1,14 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import Bubble from "./bubble/Bubble";
 import ColorPicker from "./colorPicker/ColorPicker";
-import { hexToRgb } from "../utils/hexToRgb";
-import { relativeLuminanceW3C } from "../utils/relativeLuminance";
+import {Checkbox} from "chayns-components";
+import { mix } from '../utils/mixColor';
 import './app.scss';
 
 const App = () => {
     const [backgroundColor, setBackgroundColor] = useState("#476D91");
-    const [data, setData] = useState(null);
-    const [contentHeight, setContentHeight] = useState(0);
+    const [isDarkMode, setIsDarkMode] = useState(false);
 
     const colorList = [
         "#666666",
@@ -24,22 +23,22 @@ const App = () => {
         "#486D83",
     ];
 
-    useEffect(() => {
-        setContentHeight(document.querySelector('.tapp').clientHeight);
-        chayns.getWindowMetrics().then((windowData) => {
-            console.log(windowData.height);
-            console.log(document.querySelector('.tapp').clientHeight)
-            setData(windowData);
-        });
-    }, []);
-
     return (
-        <div style={{ padding: '16px', backgroundColor: backgroundColor }}>
+        <div style={{ padding: '16px', backgroundColor: `${isDarkMode ? mix(backgroundColor, "#2F2F2F", 20) : mix(backgroundColor, "#FFFFFF", 10)}` }}>
+            <Checkbox
+                toggleButton
+                label="Dark Mode"
+                onChange={(value) => {
+                    setIsDarkMode(value);
+                }}
+                checked={isDarkMode}
+            />
+            <div style={{ marginTop: '20px' }} />
             <ColorPicker color={backgroundColor} setColor={setBackgroundColor} />
             {
                 colorList.map((color) => {
                     return (
-                        <Bubble backgroundColor={backgroundColor} textColor={color} key={color} />
+                        <Bubble backgroundColor={backgroundColor} textColor={color} isDarkMode={isDarkMode} key={color} />
                     );
                 })
             }
