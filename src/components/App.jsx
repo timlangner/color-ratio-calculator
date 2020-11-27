@@ -53,7 +53,7 @@ const App = () => {
                     }}
                     checked={improveColors}
                 />
-                <p style={ isDarkMode ? { color: 'white' } : { color: 'black' }}>Improve name colors</p>
+                <p style={ isDarkMode ? { color: 'white' } : { color: 'black' }}>Fix bad color ratio</p>
             </div>
             <div style={{ marginTop: '20px' }} />
             <ColorChooser color={backgroundColor} setColor={setBackgroundColor} />
