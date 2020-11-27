@@ -11,6 +11,7 @@ const Bubble = ({ backgroundColor, textColor, isDarkMode, improveColors }) => {
     const [textLuminance, setTextLuminance] = useState(0);
     const [colorContrast, setColorContrast] = useState(0);
     const [newTextColor, setNewTextColor] = useState("");
+    const [lastColorMix, setLastColorMix] = useState({ratio: 0, brighter: false});
 
     // Calculate background luminance if background color got changed through the color picker or dark mode got toggled
     useEffect(() => {
@@ -42,18 +43,40 @@ const Bubble = ({ backgroundColor, textColor, isDarkMode, improveColors }) => {
     }, [backgroundLuminance, textLuminance]);
 
     // Mix a better text color if color contrast is too low
+    // Mix brighter color and observe the contrast ratio after change. If it gets better, continue mixing it brighter, if it gets worse, mix it darker
     useEffect(() => {
         if (improveColors) {
             if (colorContrast < 2 && colorContrast > 1) {
                 const hsv = convert.hex.hsv(textColor);
-                if (hsv[2] >= 50) {
-                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] - 20)}`)
-                } else {
-                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] + 20)}`)
+                if (lastColorMix.ratio > colorContrast && lastColorMix.brighter) {
+
+                    // Current contrast ratio is worse and the last mix which made it worse was brighter
+                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] - 25)}`);
+                    setLastColorMix({ratio: colorContrast, brighter: false});
+
+                } else if (lastColorMix.ratio < colorContrast && lastColorMix.brighter) {
+
+                    // Current contrast ratio is better and the last mix which made it better was brighter
+                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] + 25)}`);
+                    setLastColorMix({ratio: colorContrast, brighter: true});
+
+                } else if (lastColorMix.ratio > colorContrast && !lastColorMix.brighter) {
+
+                    // Current contrast ratio is worse and the last mix which made it better was darker
+                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] + 25)}`);
+                    setLastColorMix({ratio: colorContrast, brighter: true});
+
+                } else if (lastColorMix.ratio < colorContrast && !lastColorMix.brighter) {
+
+                    // Current contrast ratio is better and the last mix which made it worse was darker
+                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] - 25)}`);
+                    setLastColorMix({ratio: colorContrast, brighter: false});
+
                 }
             }
         } else {
             setNewTextColor("");
+            setLastColorMix({ratio: 0, brighter: false});
         }
     }, [improveColors, colorContrast])
 
@@ -69,7 +92,7 @@ const Bubble = ({ backgroundColor, textColor, isDarkMode, improveColors }) => {
                     </div>
                 </div>
                 <div className="contrast-wrapper" style={{ backgroundColor: `${mix(backgroundColor, "#E4E4E4", 40)}` }}>
-                    <p>{`Contrast: ${colorContrast.toFixed(2)} ${colorContrast < 2 ? `🙁` : colorContrast < 3.5 ? `🙂` : colorContrast < 7 ? `😀` : `😍`}`}</p>
+                    <p>{`Ratio: ${colorContrast.toFixed(2)} ${colorContrast < 2 ? `🙁` : colorContrast < 3.5 ? `🙂` : colorContrast < 7 ? `😀` : `😍`}`}</p>
                 </div>
             </div>
         </>
