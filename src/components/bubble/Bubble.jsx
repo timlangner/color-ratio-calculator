@@ -2,33 +2,36 @@ import React, {useEffect, useState} from "react";
 import { mix } from '../../utils/mixColor';
 import {relativeLuminanceW3C} from "../../utils/relativeLuminance";
 import {hexToRgb} from "../../utils/hexToRgb";
+let convert = require('color-convert');
 import './bubble.scss';
 
-const Bubble = ({ backgroundColor, textColor, isDarkMode }) => {
+const Bubble = ({ backgroundColor, textColor, isDarkMode, improveColors }) => {
 
     const [backgroundLuminance, setBackgroundLuminance] = useState(0);
     const [textLuminance, setTextLuminance] = useState(0);
     const [colorContrast, setColorContrast] = useState(0);
+    const [newTextColor, setNewTextColor] = useState("");
 
-    // Calculate new background luminance if dark mode got turned on or off
+    // Calculate background luminance if background color got changed through the color picker or dark mode got toggled
     useEffect(() => {
         if (isDarkMode) {
             setBackgroundLuminance(relativeLuminanceW3C(hexToRgb(mix(backgroundColor, "#777777", 40))));
         } else {
             setBackgroundLuminance(relativeLuminanceW3C(hexToRgb(mix(backgroundColor, "#E4E4E4", 40))));
         }
-    }, [isDarkMode]);
+    }, [backgroundColor, isDarkMode]);
 
-    // Calculate background luminance if background color got changed through the color picker
+    // Calculate text luminance for current color
     useEffect(() => {
-        setBackgroundLuminance(relativeLuminanceW3C(hexToRgb(mix(backgroundColor, "#E4E4E4", 40))));
-    }, [backgroundColor]);
+        if (newTextColor.length > 0) {
+            setTextLuminance(relativeLuminanceW3C(hexToRgb(newTextColor)));
+        } else {
+            setTextLuminance(relativeLuminanceW3C(hexToRgb(textColor)));
+        }
+    }, [textColor, newTextColor]);
 
-    useEffect(() => {
-        setTextLuminance(relativeLuminanceW3C(hexToRgb(textColor)));
-    }, [textColor]);
-
-    // color contrast math form = (L1 + 0,05) / (L2 + 0,05)
+    // Calculate color contrast
+    // Formula = (L1 + 0,05) / (L2 + 0,05)
     // L1 = lighter luminance, L2 = darker luminance
     useEffect(() => {
         if (textLuminance > backgroundLuminance) {
@@ -36,13 +39,29 @@ const Bubble = ({ backgroundColor, textColor, isDarkMode }) => {
         } else {
             setColorContrast((backgroundLuminance + 0.05) / (textLuminance + 0.05));
         }
-    }, [backgroundLuminance]);
+    }, [backgroundLuminance, textLuminance]);
+
+    // Mix a better text color if color contrast is too low
+    useEffect(() => {
+        if (improveColors) {
+            if (colorContrast < 2 && colorContrast > 1) {
+                const hsv = convert.hex.hsv(textColor);
+                if (hsv[2] >= 50) {
+                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] - 20)}`)
+                } else {
+                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] + 20)}`)
+                }
+            }
+        } else {
+            setNewTextColor("");
+        }
+    }, [improveColors, colorContrast])
 
     return (
         <>
             <div className="bubble-flexbox">
-                <div className="bubble-wrapper" style={{ backgroundColor: `${isDarkMode ? mix(backgroundColor, "#777777", 40) : mix(backgroundColor, "#E4E4E4", 40)}` }}>
-                    <div className="name" style={{ color: `${textColor}`, fontWeight: 'bold' }}>
+                <div className="bubble-wrapper" style={{ backgroundColor: `${isDarkMode ? mix(backgroundColor, "#777777", 40) : mix(backgroundColor, "#e4e4e4", 40)}` }}>
+                    <div className="name" style={newTextColor.length > 0 ? { color: `${newTextColor}`, fontWeight: 'bold' } : { color: `${textColor}`, fontWeight: 'bold' }}>
                         <p>Max Mustermann</p>
                     </div>
                     <div style={ isDarkMode ? {color: 'white'} : {color: 'black'} }>
@@ -50,7 +69,7 @@ const Bubble = ({ backgroundColor, textColor, isDarkMode }) => {
                     </div>
                 </div>
                 <div className="contrast-wrapper" style={{ backgroundColor: `${mix(backgroundColor, "#E4E4E4", 40)}` }}>
-                    <p>{`Contrast: ${colorContrast.toFixed(2)}`}</p>
+                    <p>{`Contrast: ${colorContrast.toFixed(2)} ${colorContrast < 2 ? `🙁` : colorContrast < 3.5 ? `🙂` : colorContrast < 7 ? `😀` : `😍`}`}</p>
                 </div>
             </div>
         </>
