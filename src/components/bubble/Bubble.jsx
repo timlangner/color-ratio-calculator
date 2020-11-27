@@ -11,7 +11,7 @@ const Bubble = ({ backgroundColor, textColor, isDarkMode, improveColors }) => {
     const [textLuminance, setTextLuminance] = useState(0);
     const [colorContrast, setColorContrast] = useState(0);
     const [newTextColor, setNewTextColor] = useState("");
-    const [lastColorMix, setLastColorMix] = useState({ratio: 0, brighter: false});
+    const [lastColorMix, setLastColorMix] = useState({currentColor: convert.hex.hsv(textColor), ratio: 0, brighter: false});
 
     // Calculate background luminance if background color got changed through the color picker or dark mode got toggled
     useEffect(() => {
@@ -44,41 +44,43 @@ const Bubble = ({ backgroundColor, textColor, isDarkMode, improveColors }) => {
 
     // Mix a better text color if color contrast is too low
     // Mix brighter color and observe the contrast ratio after change. If it gets better, continue mixing it brighter, if it gets worse, mix it darker
+    // TODO: Also change saturation if ratio is still bad
     useEffect(() => {
         if (improveColors) {
             if (colorContrast < 2 && colorContrast > 1) {
-                const hsv = convert.hex.hsv(textColor);
+                const hsv = lastColorMix.currentColor;
+                console.log('currentColor', hsv);
                 if (lastColorMix.ratio > colorContrast && lastColorMix.brighter) {
 
                     // Current contrast ratio is worse and the last mix which made it worse was brighter
-                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] - 25)}`);
-                    setLastColorMix({ratio: colorContrast, brighter: false});
+                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] - 10)}`);
+                    setLastColorMix({currentColor: [hsv[0], hsv[1], hsv[2] - 10], ratio: colorContrast, brighter: false});
 
                 } else if (lastColorMix.ratio < colorContrast && lastColorMix.brighter) {
 
                     // Current contrast ratio is better and the last mix which made it better was brighter
-                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] + 25)}`);
-                    setLastColorMix({ratio: colorContrast, brighter: true});
+                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] + 10)}`);
+                    setLastColorMix({currentColor: [hsv[0], hsv[1], hsv[2] + 10], ratio: colorContrast, brighter: true});
 
                 } else if (lastColorMix.ratio > colorContrast && !lastColorMix.brighter) {
 
                     // Current contrast ratio is worse and the last mix which made it better was darker
-                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] + 25)}`);
-                    setLastColorMix({ratio: colorContrast, brighter: true});
+                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] + 10)}`);
+                    setLastColorMix({currentColor: [hsv[0], hsv[1], hsv[2] + 10], ratio: colorContrast, brighter: true});
 
                 } else if (lastColorMix.ratio < colorContrast && !lastColorMix.brighter) {
 
                     // Current contrast ratio is better and the last mix which made it worse was darker
-                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] - 25)}`);
-                    setLastColorMix({ratio: colorContrast, brighter: false});
+                    setNewTextColor(`#${convert.hsv.hex(hsv[0], hsv[1], hsv[2] - 10)}`);
+                    setLastColorMix({currentColor: [hsv[0], hsv[1], hsv[2] - 10], ratio: colorContrast, brighter: false});
 
                 }
             }
         } else {
             setNewTextColor("");
-            setLastColorMix({ratio: 0, brighter: false});
+            setLastColorMix({currentColor: convert.hex.hsv(textColor), ratio: 0, brighter: false});
         }
-    }, [improveColors, colorContrast])
+    }, [improveColors, colorContrast, newTextColor])
 
     return (
         <>
