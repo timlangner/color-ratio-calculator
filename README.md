@@ -1,14 +1,4 @@
-# chayns® React Pagemaker Template
-
-## `project.json` file
-
-This file will determine several aspects of the build chain.
-
-| Parameter    | Usage                                                                                           |
-| ------------ | ----------------------------------------------------------------------------------------------- |
-| internalName | The internal name of your project, will be used to determine the build path for staging builds. |
-| subproject   | The name of your subproject, helpful if you have multiple frontends in a single project.        |
-| externalName | The external name of your project, will be used in the title of generated HTML file.            |
+# chayns® contrast ratio calculator
 
 ## Development
 
@@ -28,12 +18,3 @@ This file will determine several aspects of the build chain.
     4. Give the Tapp a name and type in the following URL : `https://localhost:8080`
     5. Click `add`
 6. Start development.
-
-> **Hint:** Writing Tapps with React? You might also want to take a look at our [React Style Guide][https://github.com/tobitsoftware/chayns-guides/blob/master/tobitreactjsxstyleguide.md].
-
-## Building
-
-You can build this project via `yarn build`.
-
-You can also build this project with sourceMaps for testing via `yarn build:staging`.
-It then can be found at https://tappqa.tobit.com/{internalName}/{subproject}/
