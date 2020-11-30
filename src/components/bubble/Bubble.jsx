@@ -24,8 +24,6 @@ const Bubble = ({ backgroundColor, textColor, isDarkMode, improveColors }) => {
     // Calculate text luminance for current color
     useEffect(() => {
         if (newTextColor.length > 0) {
-            console.log('newTextColor', newTextColor);
-            console.log('new luminance', relativeLuminanceW3C(hexToRgb(newTextColor)));
             setTextLuminance(relativeLuminanceW3C(hexToRgb(newTextColor)));
         } else {
             setTextLuminance(relativeLuminanceW3C(hexToRgb(textColor)));
@@ -37,10 +35,8 @@ const Bubble = ({ backgroundColor, textColor, isDarkMode, improveColors }) => {
     // L1 = lighter luminance, L2 = darker luminance
     useEffect(() => {
         if (textLuminance > backgroundLuminance) {
-            console.log((textLuminance + 0.05) / (backgroundLuminance + 0.05));
             setColorContrast((textLuminance + 0.05) / (backgroundLuminance + 0.05));
         } else {
-            console.log(backgroundLuminance, textLuminance, (backgroundLuminance + 0.05) / (textLuminance + 0.05));
             setColorContrast((backgroundLuminance + 0.05) / (textLuminance + 0.05));
         }
     }, [backgroundLuminance, textLuminance]);
@@ -48,8 +44,15 @@ const Bubble = ({ backgroundColor, textColor, isDarkMode, improveColors }) => {
     // Generate a random text color if contrast ratio is too low
     useEffect(() => {
         if (improveColors) {
-            if (colorContrast < 3 && colorContrast > 1) {
-                const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+            if (colorContrast < 2 && colorContrast > 1) {
+                let randomColor = Math.floor(Math.random() * 16777215).toString(16);
+                if (randomColor.length < 6) {
+                    for (let i = 0; i < 6; i++) {
+                        if (!randomColor[i]) {
+                            randomColor = randomColor + "0";
+                        }
+                    }
+                }
                 setNewTextColor(`#${randomColor}`);
             }
         } else {
