@@ -44,7 +44,6 @@ const Bubble = ({ backgroundColor, textColor, isDarkMode, improveColors }) => {
 
     // Mix a better text color if color contrast is too low
     // Mix brighter color and observe the contrast ratio after change. If it gets better, continue mixing it brighter, if it gets worse, mix it darker
-    // TODO: Also change saturation if ratio is still bad
     useEffect(() => {
         if (improveColors) {
             if (colorContrast < 2 && colorContrast > 1) {
