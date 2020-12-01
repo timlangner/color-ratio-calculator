@@ -1,6 +1,4 @@
 export const relativeLuminanceW3C = (color) => {
-    console.log('color', color);
-
     const RsRGB = color.r/255;
     const GsRGB = color.g/255;
     const BsRGB = color.b/255;
