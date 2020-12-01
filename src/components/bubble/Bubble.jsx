@@ -46,6 +46,7 @@ const Bubble = ({ backgroundColor, textColor, isDarkMode, improveColors }) => {
         if (improveColors) {
             if (colorContrast < 2 && colorContrast > 1) {
                 let randomColor = Math.floor(Math.random() * 16777215).toString(16);
+                let hexColor = '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0'); // Always six digits
                 if (randomColor.length < 6) {
                     for (let i = 0; i < 6; i++) {
                         if (!randomColor[i]) {
